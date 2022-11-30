@@ -1,11 +1,23 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import { GetStaticProps } from "next";
+import { Item } from "types/item";
+import ItemList from "components/organisms/item/ItemList";
+import Header from "components/organisms/layout/Header";
+import Footer from "components/organisms/layout/Footer";
 
-export default function Home() {
+export const getStaticProps: GetStaticProps = async () => {
+  const res = await fetch("http://localhost:8000/items");
+  const items = await res.json();
+  return {
+    props: { items },
+  };
+};
+
+export default function Home({ items }: { items: Item[] }) {
   return (
-    <h1 className="text-3xl font-bold underline text-red-500 font-poppins">
-      Hello world!
-    </h1>
-  )
+    <>
+      <Header />
+      <ItemList items={items} />
+      <Footer />
+    </>
+  );
 }
