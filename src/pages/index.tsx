@@ -1,8 +1,7 @@
 import { GetStaticProps } from "next";
 import { Item } from "types/item";
 import ItemList from "components/organisms/item/ItemList";
-import Header from "components/organisms/layout/Header";
-import Footer from "components/organisms/layout/Footer";
+import Layout from "components/template/Layout";
 
 export const getStaticProps: GetStaticProps = async () => {
   const res = await fetch("http://localhost:8000/items");
@@ -14,10 +13,8 @@ export const getStaticProps: GetStaticProps = async () => {
 
 export default function Home({ items }: { items: Item[] }) {
   return (
-    <>
-      <Header />
+    <Layout title="商品一覧">
       <ItemList items={items} />
-      <Footer />
-    </>
+    </Layout>
   );
 }
