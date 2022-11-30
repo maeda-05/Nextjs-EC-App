@@ -26,9 +26,11 @@ const CartItem: FC<Props> = ({
         <p className="text-sm before:content-['¥']">{price}</p>
       </div>
       <p className="w-10 text-sm after:content-['個']">{quantity}</p>
-      <p className="w-12 text-sm before:content-['¥']">{totalPrice.toLocaleString()}</p>
-      <p onClick={onClick} className="text-sm cursor-pointer hover:underline">
-        削除
+      <p className="w-12 text-sm before:content-['¥']">
+        {totalPrice.toLocaleString()}
+      </p>
+      <p onClick={onClick} className="md:text-2xl cursor-pointer text-1xl">
+        <i className="fa-solid fa-xmark"></i>
       </p>
     </div>
   );

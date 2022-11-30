@@ -4,6 +4,7 @@ import ItemDetail from "components/organisms/item/ItemDetail";
 import Header from "components/organisms/layout/Header";
 import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from "next";
 import Footer from "components/organisms/layout/Footer";
+import Layout from "components/template/Layout";
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const res = await fetch("http://localhost:8000/items");
@@ -28,11 +29,9 @@ export const getStaticProps: GetStaticProps = async ({
 
 const ItemDetailPage = ({ item }: { item: Item }) => {
   return (
-    <>
-      <Header />
+    <Layout title={item.name}>
       <ItemDetail item={item} />
-      <Footer />
-    </>
+    </Layout>
   );
 };
 

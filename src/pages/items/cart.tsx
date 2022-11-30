@@ -1,6 +1,7 @@
 import CartList from "components/organisms/item/CartList";
 import Footer from "components/organisms/layout/Footer";
 import Header from "components/organisms/layout/Header";
+import Layout from "components/template/Layout";
 import { GetServerSideProps } from "next";
 import React from "react";
 import { CartItemType } from "types/item";
@@ -15,11 +16,9 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
 const CartPage = ({ cartItems }: { cartItems: CartItemType[] }) => {
   return (
-    <>
-      <Header />
+    <Layout title="ショッピングカート">
       <CartList cart={cartItems} />
-      <Footer />
-    </>
+    </Layout>
   );
 };
 
