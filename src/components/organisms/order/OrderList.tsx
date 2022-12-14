@@ -2,11 +2,14 @@ import PrimaryBtn from "components/atoms/button/PrimaryBtn";
 import PrimaryInput from "components/atoms/inputs/PrimaryInput";
 import OrderItem from "components/molecules/item/OrderItem";
 import { useRouter } from "next/router";
+import { useAuthContext } from "providers/AuthContext";
 import React, { SyntheticEvent, useState } from "react";
 import { CartItemType } from "types/item";
 
 const OrderList = ({ cart }: { cart: CartItemType[] }) => {
   const router = useRouter();
+  const { user } = useAuthContext();
+  
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [zipcode, setZipcode] = useState("");
@@ -74,7 +77,7 @@ const OrderList = ({ cart }: { cart: CartItemType[] }) => {
         prefecture,
         city,
         tel,
-        orderDate: new Date(),
+        uid: user?.uid
       };
 
       const parameter = {
@@ -84,15 +87,18 @@ const OrderList = ({ cart }: { cart: CartItemType[] }) => {
         },
         body: JSON.stringify(orderData),
       };
-      await fetch(`http://localhost:8000/order`, parameter);
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/order`,
+        parameter
+      );
 
       // 注文完了後カートの商品を削除
-      const res = await fetch(`http://localhost:8000/cart`);
-      const cartItems: CartItemType[] = await res.json();
-      cartItems.map((cartItem: CartItemType) => {
-        fetch(`http://localhost:8000/cart/${cartItem.id}`, {
-          method: "DELETE",
-        });
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/order`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ uid: user?.uid }),
       });
 
       // 注文完了画面へ遷移
@@ -116,7 +122,7 @@ const OrderList = ({ cart }: { cart: CartItemType[] }) => {
           {cart.map((item: CartItemType) => {
             return (
               <OrderItem
-                key={item.id}
+                key={item.documentid}
                 name={item.name}
                 path={item.image_path}
                 price={item.price}
@@ -184,7 +190,7 @@ const OrderList = ({ cart }: { cart: CartItemType[] }) => {
             onChange={setTel}
           />
           <p className="text-red-500 text-xs italic mx-4">{telError}</p>
-          <div className="text-center my-8">
+          <div className="text-center md:text-right my-8">
             <PrimaryBtn color="bg-green-500">注文する</PrimaryBtn>
           </div>
         </form>

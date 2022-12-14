@@ -1,10 +1,13 @@
 import PrimaryBtn from "components/atoms/button/PrimaryBtn";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useAuthContext } from "providers/AuthContext";
 import React, { ChangeEventHandler, useState } from "react";
 import { Item } from "types/item";
 
 const ItemDetail = ({ item }: { item: Item }) => {
+  const { user } = useAuthContext();
+  
   const router = useRouter();
   // 商品数をカウント
   const [quantity, setQuantity] = useState("1");
@@ -14,6 +17,7 @@ const ItemDetail = ({ item }: { item: Item }) => {
   const addItem = async () => {
     // カートに商品データをpost
     const cartItem = {
+      uid: user?.uid,
       ...item,
       quantity: parseInt(quantity),
       totalPrice: parseInt(quantity) * item.price,
@@ -27,9 +31,8 @@ const ItemDetail = ({ item }: { item: Item }) => {
       body: JSON.stringify(cartItem),
     };
 
-    await fetch(`http://localhost:8000/cart`, parameter);
-
-    router.push("/items/cart");
+    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cart`, parameter);
+    await router.push(`/items/cart?uid=${user?.uid}`);
   };
 
   return (

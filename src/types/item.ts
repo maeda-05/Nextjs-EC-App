@@ -10,6 +10,8 @@ export type Item = {
 
 export type CartItemType = {
   id: number;
+  documentid: string;
+  uid: string;
   type: string;
   name: string;
   description: string;
@@ -18,4 +20,5 @@ export type CartItemType = {
   deleted: boolean;
   quantity: number;
   totalPrice: number;
+  incartAt: Date;
 };

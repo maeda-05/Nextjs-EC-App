@@ -1,10 +1,12 @@
 import PrimaryBtn from "components/atoms/button/PrimaryBtn";
 import CartItem from "components/molecules/item/CartItem";
 import { useRouter } from "next/router";
+import { useAuthContext } from "providers/AuthContext";
 import React, { useState } from "react";
 import { CartItemType } from "types/item";
 
 const CartList = ({ cart }: { cart: CartItemType[] }) => {
+  const { user } = useAuthContext();
   const router = useRouter();
 
   const cartItemsQuantity = cart.map((cartItem) => cartItem.quantity);
@@ -14,8 +16,14 @@ const CartList = ({ cart }: { cart: CartItemType[] }) => {
   );
   const [cartItemsCount, setCartItemsCount] = useState(totalCartItemsQuantity);
 
-  const removeItem = async (id: number) => {
-    await fetch(`http://localhost:8000/cart/${id}`, { method: "DELETE" });
+  const removeItem = async (uid: string, documentid: string) => {
+    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cart`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ uid, documentid }),
+    });
     setCartItemsCount(totalCartItemsQuantity);
     router.reload();
   };
@@ -23,7 +31,7 @@ const CartList = ({ cart }: { cart: CartItemType[] }) => {
   const totalPrices = cart.map((cartItem) => cartItem.totalPrice);
   const total = totalPrices.reduce((a: number, b: number) => a + b, 0);
 
-  const toOrderPage = () => router.push("/items/order");
+  const toOrderPage = () => router.push(`/items/order?uid=${user?.uid}`);
   const toItemPage = () => router.push("/");
   return (
     <section className="mt-10 text-center w-10/12 mx-auto md:p-8">
@@ -35,13 +43,13 @@ const CartList = ({ cart }: { cart: CartItemType[] }) => {
         {cart.map((item: CartItemType) => {
           return (
             <CartItem
-              key={item.id}
+              key={item.documentid}
               name={item.name}
               path={item.image_path}
               price={item.price}
               quantity={item.quantity}
               totalPrice={item.totalPrice}
-              onClick={() => removeItem(item.id)}
+              onClick={() => removeItem(item.uid, item.documentid)}
             />
           );
         })}
