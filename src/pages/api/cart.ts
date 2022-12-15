@@ -1,7 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import { CartItemType } from "types/item";
-import { User } from "types/user";
 const { cert } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const serviceAccount = require("../../../nextjs-ec-app-firebase-adminsdk.json");

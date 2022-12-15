@@ -1,15 +1,13 @@
 import PrimaryBtn from "components/atoms/button/PrimaryBtn";
 import PrimaryInput from "components/atoms/inputs/PrimaryInput";
 import OrderItem from "components/molecules/item/OrderItem";
-import { useRouter } from "next/router";
 import { useAuthContext } from "providers/AuthContext";
 import React, { SyntheticEvent, useState } from "react";
 import { CartItemType } from "types/item";
 
 const OrderList = ({ cart }: { cart: CartItemType[] }) => {
-  const router = useRouter();
   const { user } = useAuthContext();
-  
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [zipcode, setZipcode] = useState("");
@@ -68,7 +66,7 @@ const OrderList = ({ cart }: { cart: CartItemType[] }) => {
         setTelError("");
       }
     } else {
-      // 注文データを送信
+      // 注文データをfirestoreに送信
       const orderData = {
         items: cart,
         name,
@@ -77,7 +75,7 @@ const OrderList = ({ cart }: { cart: CartItemType[] }) => {
         prefecture,
         city,
         tel,
-        uid: user?.uid
+        uid: user?.uid,
       };
 
       const parameter = {
@@ -87,32 +85,35 @@ const OrderList = ({ cart }: { cart: CartItemType[] }) => {
         },
         body: JSON.stringify(orderData),
       };
-      await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/order`,
-        parameter
-      );
+      await fetch("/api/order", parameter);
 
-      // 注文完了後カートの商品を削除
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/order`, {
-        method: "DELETE",
+      // 注文データをstripeに送信
+      await fetch("/api/checkout_session", {
+        method: "POST",
+        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ uid: user?.uid }),
-      });
+        body: JSON.stringify(cart),
+      })
+        .then((res) => res.json())
+        .then(async (data) => {
+          // 注文完了後カートの商品を削除
+          await fetch("/api/order", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ uid: user?.uid }),
+          });
 
-      // 注文完了画面へ遷移
-      toOrderCompletePage();
+          location.href = data.sessionURL;
+        });
     }
   };
 
-  const toOrderCompletePage = () => router.push("/items/ordercomplete");
-
   return (
-    <section
-      className="mt-10 w-10/12 mx-auto md:p-8"
-      onSubmit={onSubmitOrderData}
-    >
+    <section className="mt-10 w-10/12 mx-auto md:p-8">
       <h1 className="font-bold my-16 text-4xl text-center">ご注文確認</h1>
       <div className="mb-20 text-center">
         <div className="mb-12">
@@ -141,7 +142,10 @@ const OrderList = ({ cart }: { cart: CartItemType[] }) => {
       </div>
       <div className="mt-8">
         <h2 className="text-2xl font-bold m-10 text-center">お届け先</h2>
-        <form className="w-10/12 mx-auto md:max-w-md">
+        <form
+          className="w-10/12 mx-auto md:max-w-md"
+          onSubmit={onSubmitOrderData}
+        >
           <PrimaryInput
             type="text"
             name="名前"
