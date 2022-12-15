@@ -17,7 +17,7 @@ const CartList = ({ cart }: { cart: CartItemType[] }) => {
   const [cartItemsCount, setCartItemsCount] = useState(totalCartItemsQuantity);
 
   const removeItem = async (uid: string, documentid: string) => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cart`, {
+    await fetch("/api/cart", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

@@ -7,7 +7,7 @@ import { Item } from "types/item";
 
 const ItemDetail = ({ item }: { item: Item }) => {
   const { user } = useAuthContext();
-  
+
   const router = useRouter();
   // 商品数をカウント
   const [quantity, setQuantity] = useState("1");
@@ -31,7 +31,7 @@ const ItemDetail = ({ item }: { item: Item }) => {
       body: JSON.stringify(cartItem),
     };
 
-    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cart`, parameter);
+    await fetch("/api/cart", parameter);
     await router.push(`/items/cart?uid=${user?.uid}`);
   };
 

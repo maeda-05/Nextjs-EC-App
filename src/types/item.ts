@@ -21,4 +21,5 @@ export type CartItemType = {
   quantity: number;
   totalPrice: number;
   incartAt: Date;
+  stripe_id: string;
 };
