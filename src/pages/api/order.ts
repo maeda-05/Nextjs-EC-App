@@ -7,7 +7,13 @@ const { getFirestore } = require("firebase-admin/firestore");
 const serviceAccount = require("../../../nextjs-ec-app-firebase-adminsdk.json");
 const admin = require("firebase-admin");
 
-type Data = OrderType[] | null;
+type Data =
+  | {
+      items: CartItemType[];
+      orderAt: Date;
+      order_id: string;
+    }[]
+  | null;
 
 export default async function handler(
   req: NextApiRequest,
@@ -31,12 +37,23 @@ export default async function handler(
 
   switch (method) {
     case "GET":
-      const snapshot = await orderCollection.get();
-      const orders = snapshot.docs.map((doc: any) => {
-        const order = doc.data();
+      const snapshot = await orderCollection.orderBy("orderAt", "desc").get();
+      const orders: OrderType[] = snapshot.docs.map((doc: any) => {
+        const order = { ...doc.data(), order_id: doc.id };
         return order;
       });
-      res.status(200).json(orders);
+      const orderOfLoginUser = orders.filter(
+        (order: OrderType) => order.uid === req.query.uid
+      );
+      const orderItemsOfLoginUser = orderOfLoginUser.map((order: OrderType) => {
+        const jsDate = order.orderAt.toDate();
+        return {
+          items: order.items,
+          orderAt: new Date(jsDate),
+          order_id: order.order_id,
+        };
+      });
+      res.status(200).json(orderItemsOfLoginUser);
       break;
 
     case "POST":

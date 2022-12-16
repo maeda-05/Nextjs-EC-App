@@ -43,7 +43,9 @@ export default async function handler(
         .collection(SUBCOLLECTION_NAME);
       const snapshot = await subCollection.orderBy("incartAt", "asc").get();
       const getCart = snapshot.docs.map((doc: any) => {
-        return { ...doc.data(), documentid: doc.id };
+        const cartData: CartItemType = doc.data();
+        const jsDate = cartData.incartAt.toDate();
+        return { ...cartData, documentid: doc.id, incartAt: new Date(jsDate) };
       });
       res.status(200).json(getCart);
       break;
