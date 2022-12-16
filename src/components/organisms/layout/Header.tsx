@@ -56,6 +56,9 @@ const Header = () => {
         <div className="p-2 hover:font-bold hover:cursor-pointer">
           <Link href={`/items/cart?uid=${user?.uid}`}>カート</Link>
         </div>
+        <div className="p-2 hover:font-bold hover:cursor-pointer">
+          <Link href={`/items/order_history?uid=${user?.uid}`}>注文履歴</Link>
+        </div>
         {!user && (
           <div className="p-2 hover:font-bold hover:cursor-pointer">
             <Link href="/user/create">新規登録</Link>
@@ -98,6 +101,9 @@ const Header = () => {
           </div>
           <div className="p-2 hover:font-bold hover:cursor-pointer">
             <Link href={`/items/cart?uid=${user?.uid}`}>カート</Link>
+          </div>
+          <div className="p-2 hover:font-bold hover:cursor-pointer">
+            <Link href={`/items/order_history?uid=${user?.uid}`}>注文履歴</Link>
           </div>
           {!user && (
             <div className="p-2 hover:font-bold hover:cursor-pointer">

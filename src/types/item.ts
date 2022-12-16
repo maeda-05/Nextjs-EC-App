@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export type Item = {
   id: number;
   type: string;
@@ -20,6 +22,6 @@ export type CartItemType = {
   deleted: boolean;
   quantity: number;
   totalPrice: number;
-  incartAt: Date;
+  incartAt: Timestamp;
   stripe_id: string;
 };

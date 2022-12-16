@@ -29,7 +29,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const needLoginPage =
     router.pathname === "/items/cart" ||
     router.pathname === "/items/order" ||
-    router.pathname === "/items/ordercomplete";
+    router.pathname === "/items/ordercomplete" ||
+    router.pathname === "/items/ordercancel" ||
+    router.pathname === "/items/order_history";
 
   useEffect(() => {
     const authStateChanged = onAuthStateChanged(auth, async (user) => {
