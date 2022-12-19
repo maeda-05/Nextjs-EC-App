@@ -1,15 +1,44 @@
 import OrderHistory from "components/organisms/order/OrderHistory";
 import Layout from "components/template/Layout";
-import { Timestamp } from "firebase/firestore";
 import { GetServerSideProps } from "next";
 import React from "react";
 import { CartItemType } from "types/item";
+import { OrderType } from "types/order";
+const { cert } = require("firebase-admin/app");
+const { getFirestore } = require("firebase-admin/firestore");
+const serviceAccount = require("../../../nextjs-ec-app-firebase-adminsdk.json");
+const admin = require("firebase-admin");
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/order?uid=${query.uid}`
+  //初期化する
+  if (admin.apps.length === 0) {
+    admin.initializeApp({
+      credential: cert(serviceAccount),
+    });
+  }
+
+  const COLLECTION_NAME = "order";
+  const db = getFirestore();
+  const orderCollection = db.collection(COLLECTION_NAME);
+
+  const orderSnapshot = await orderCollection.orderBy("orderAt", "desc").get();
+  const orders: OrderType[] = orderSnapshot.docs.map((doc: any) => {
+    const order = { ...doc.data(), order_id: doc.id };
+    return order;
+  });
+  const orderOfLoginUser = orders.filter(
+    (order: OrderType) => order.uid === query.uid
   );
-  const orderItems = await res.json();
+  const orderItemsOfLoginUser = orderOfLoginUser.map((order: OrderType) => {
+    const jsDate = order.orderAt.toDate();
+    return {
+      items: order.items,
+      orderAt: jsDate,
+      order_id: order.order_id,
+    };
+  });
+  const orderItems = JSON.parse(JSON.stringify(orderItemsOfLoginUser));
+
   return {
     props: { orderItems },
   };

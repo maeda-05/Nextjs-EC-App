@@ -28,7 +28,7 @@ export default async function handler(
 
   switch (method) {
     case "POST":
-      const docRef = usersCollection.doc(req.body.uid);
+      const docRef: any = usersCollection.doc(`${req.body.uid}`);
       const insertData: CartItemType = {
         ...req.body,
         incartAt: new Date(),
@@ -39,20 +39,20 @@ export default async function handler(
 
     case "GET":
       const subCollection = usersCollection
-        .doc(req.query.uid)
+        .doc(`${req.query.uid}`)
         .collection(SUBCOLLECTION_NAME);
       const snapshot = await subCollection.orderBy("incartAt", "asc").get();
-      const getCart = snapshot.docs.map((doc: any) => {
-        const cartData: CartItemType = doc.data();
+      const getCart = (await snapshot).docs.map((doc: any) => {
+        const cartData = doc.data();
         const jsDate = cartData.incartAt.toDate();
-        return { ...cartData, documentid: doc.id, incartAt: new Date(jsDate) };
+        return { ...cartData, documentid: doc.id, incartAt: jsDate };
       });
       res.status(200).json(getCart);
       break;
 
     case "DELETE":
       await usersCollection
-        .doc(req.body.uid)
+        .doc(`${req.body.uid}`)
         .collection(SUBCOLLECTION_NAME)
         .doc(req.body.documentid)
         .delete();
