@@ -1,25 +1,14 @@
 import OrderHistory from "components/organisms/order/OrderHistory";
 import Layout from "components/template/Layout";
+import { adminDB } from "../../firebase/server";
 import { GetServerSideProps } from "next";
 import React from "react";
 import { CartItemType } from "types/item";
 import { OrderType } from "types/order";
-const { cert } = require("firebase-admin/app");
-const { getFirestore } = require("firebase-admin/firestore");
-const serviceAccount = require("../../../nextjs-ec-app-firebase-adminsdk.json");
-const admin = require("firebase-admin");
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  //初期化する
-  if (admin.apps.length === 0) {
-    admin.initializeApp({
-      credential: cert(serviceAccount),
-    });
-  }
-
   const COLLECTION_NAME = "order";
-  const db = getFirestore();
-  const orderCollection = db.collection(COLLECTION_NAME);
+  const orderCollection = adminDB.collection(COLLECTION_NAME);
 
   const orderSnapshot = await orderCollection.orderBy("orderAt", "desc").get();
   const orders: OrderType[] = orderSnapshot.docs.map((doc: any) => {

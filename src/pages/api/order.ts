@@ -1,15 +1,12 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { adminDB } from "../../firebase/server";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { CartItemType } from "types/item";
+import { apiGetCartItemData, CartItemType } from "types/item";
 import { OrderType } from "types/order";
-const { cert } = require("firebase-admin/app");
-const { getFirestore } = require("firebase-admin/firestore");
-const serviceAccount = require("../../../nextjs-ec-app-firebase-adminsdk.json");
-const admin = require("firebase-admin");
 
 type Data =
   | {
-      items: CartItemType[];
+      items: apiGetCartItemData[];
       orderAt: Date;
       order_id: string;
     }[]
@@ -19,19 +16,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  //初期化する
-  if (admin.apps.length === 0) {
-    admin.initializeApp({
-      credential: cert(serviceAccount),
-    });
-  }
-
-  const COLLECTION_NAME = "order";
-  const MAINCOLLECTION_NAME = "users";
+  const COLLECTION_NAME1 = "order";
+  const COLLECTION_NAME2 = "users";
   const SUBCOLLECTION_NAME = "cart";
-  const db = getFirestore();
-  const orderCollection = db.collection(COLLECTION_NAME);
-  const usersCollection = db.collection(MAINCOLLECTION_NAME);
+
+  const orderCollection = adminDB.collection(COLLECTION_NAME1);
+  const usersCollection = adminDB.collection(COLLECTION_NAME2);
 
   const { method } = req;
 
@@ -40,14 +30,14 @@ export default async function handler(
       const orderSnapshot = await orderCollection
         .orderBy("orderAt", "desc")
         .get();
-      const orders: OrderType[] = orderSnapshot.docs.map((doc: any) => {
-        const order = { ...doc.data(), order_id: doc.id };
+      const orders = orderSnapshot.docs.map((doc) => {
+        const order = { ...doc.data(), order_id: doc.id } as OrderType;
         return order;
       });
       const orderOfLoginUser = orders.filter(
-        (order: OrderType) => order.uid === req.query.uid
+        (order) => order.uid === req.query.uid
       );
-      const orderItemsOfLoginUser = orderOfLoginUser.map((order: OrderType) => {
+      const orderItemsOfLoginUser = orderOfLoginUser.map((order) => {
         const jsDate = order.orderAt.toDate();
         return {
           items: order.items,

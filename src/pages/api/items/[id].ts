@@ -1,38 +1,25 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Item } from "types/item";
-import { QueryDocumentSnapshot, QuerySnapshot } from "firebase/firestore";
-const { cert } = require("firebase-admin/app");
-const { getFirestore } = require("firebase-admin/firestore");
-const serviceAccount = require("../../../../nextjs-ec-app-firebase-adminsdk.json");
-const admin = require("firebase-admin");
+import { adminDB } from "../../../firebase/server";
 
-type Data = Item | { message: string } | null;
+type Data = FirebaseFirestore.DocumentData | { message: string } | null;
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  //初期化する
-  if (admin.apps.length === 0) {
-    admin.initializeApp({
-      credential: cert(serviceAccount),
-    });
-  }
-
   const COLLECTION_NAME = "items";
-  const db = getFirestore();
-  const itemsCollection = db.collection(COLLECTION_NAME);
+  const itemsCollection = adminDB.collection(COLLECTION_NAME);
 
   const id = req.query.id as string;
-  const snapshot: Promise<QuerySnapshot<Item>> = await itemsCollection.get();
-  const items = (await snapshot).docs.map(
-    (doc: QueryDocumentSnapshot<Item>) => {
+  const snapshot = await itemsCollection.get();
+  const items = snapshot.docs.map(
+    (doc) => {
       const item = doc.data();
       return item;
     }
   );
-  const item = items.find((item: Item) => item.id === Number(id));
+  const item = items.find((item) => item.id === Number(id));
 
   if (req.method === "GET") {
     if (item) {
