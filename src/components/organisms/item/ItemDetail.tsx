@@ -7,14 +7,18 @@ import { Item } from "types/item";
 
 const ItemDetail = ({ item }: { item: Item }) => {
   const { user } = useAuthContext();
-
   const router = useRouter();
+
   // 商品数をカウント
   const [quantity, setQuantity] = useState("1");
   const onChangeCount: ChangeEventHandler<HTMLSelectElement> = (e) =>
     setQuantity(e.target.value);
 
   const addItem = async () => {
+    if (!user) {
+      router.push("/user/login");
+      return;
+    }
     // カートに商品データをpost
     const cartItem = {
       uid: user?.uid,

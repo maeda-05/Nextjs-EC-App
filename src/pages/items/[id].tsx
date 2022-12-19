@@ -3,31 +3,17 @@ import React from "react";
 import ItemDetail from "components/organisms/item/ItemDetail";
 import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from "next";
 import Layout from "components/template/Layout";
-import { QueryDocumentSnapshot, QuerySnapshot } from "firebase/firestore";
-const { cert } = require("firebase-admin/app");
-const { getFirestore } = require("firebase-admin/firestore");
-const serviceAccount = require("../../../nextjs-ec-app-firebase-adminsdk.json");
-const admin = require("firebase-admin");
+import { adminDB } from "../../firebase/server";
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  //初期化する
-  if (admin.apps.length === 0) {
-    admin.initializeApp({
-      credential: cert(serviceAccount),
-    });
-  }
-
   const COLLECTION_NAME = "items";
-  const db = getFirestore();
-  const itemsCollection = db.collection(COLLECTION_NAME);
+  const itemsCollection = adminDB.collection(COLLECTION_NAME);
 
-  const snapshot: Promise<QuerySnapshot<Item>> = await itemsCollection.get();
-  const items = (await snapshot).docs.map(
-    (doc: QueryDocumentSnapshot<Item>) => {
-      const item = doc.data();
-      return item;
-    }
-  );
+  const snapshot = await itemsCollection.get();
+  const items = snapshot.docs.map((doc) => {
+    const item = doc.data();
+    return item as Item;
+  });
 
   return {
     paths: items.map((item: Item) => {
@@ -40,25 +26,15 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({
   params,
 }: GetStaticPropsContext) => {
-  //初期化する
-  if (admin.apps.length === 0) {
-    admin.initializeApp({
-      credential: cert(serviceAccount),
-    });
-  }
-
   const COLLECTION_NAME = "items";
-  const db = getFirestore();
-  const itemsCollection = db.collection(COLLECTION_NAME);
+  const itemsCollection = adminDB.collection(COLLECTION_NAME);
 
   const id = params!.id;
-  const snapshot: Promise<QuerySnapshot<Item>> = await itemsCollection.get();
-  const items = (await snapshot).docs.map(
-    (doc: QueryDocumentSnapshot<Item>) => {
-      const item = doc.data();
-      return item;
-    }
-  );
+  const snapshot = await itemsCollection.get();
+  const items = snapshot.docs.map((doc) => {
+    const item = doc.data();
+    return item as Item;
+  });
   const item = items.find((item: Item) => item.id === Number(id));
 
   return {

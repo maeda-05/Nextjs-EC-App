@@ -1,34 +1,23 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { adminDB } from "../../firebase/server";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { CartItemType } from "types/item";
-const { cert } = require("firebase-admin/app");
-const { getFirestore } = require("firebase-admin/firestore");
-const serviceAccount = require("../../../nextjs-ec-app-firebase-adminsdk.json");
-const admin = require("firebase-admin");
+import { apiGetCartItemData, CartItemType } from "types/item";
 
-type Data = CartItemType[] | null;
+type Data = apiGetCartItemData[] | null;
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  //初期化する
-  if (admin.apps.length === 0) {
-    admin.initializeApp({
-      credential: cert(serviceAccount),
-    });
-  }
-
   const COLLECTION_NAME = "users";
   const SUBCOLLECTION_NAME = "cart";
-  const db = getFirestore();
-  const usersCollection = db.collection(COLLECTION_NAME);
+  const usersCollection = adminDB.collection(COLLECTION_NAME);
 
   const { method } = req;
 
   switch (method) {
     case "POST":
-      const docRef: any = usersCollection.doc(`${req.body.uid}`);
+      const docRef = usersCollection.doc(`${req.body.uid}`);
       const insertData: CartItemType = {
         ...req.body,
         incartAt: new Date(),
@@ -42,8 +31,8 @@ export default async function handler(
         .doc(`${req.query.uid}`)
         .collection(SUBCOLLECTION_NAME);
       const snapshot = await subCollection.orderBy("incartAt", "asc").get();
-      const getCart = (await snapshot).docs.map((doc: any) => {
-        const cartData = doc.data();
+      const getCart = snapshot.docs.map((doc) => {
+        const cartData = doc.data() as CartItemType;
         const jsDate = cartData.incartAt.toDate();
         return { ...cartData, documentid: doc.id, incartAt: jsDate };
       });
@@ -54,7 +43,7 @@ export default async function handler(
       await usersCollection
         .doc(`${req.body.uid}`)
         .collection(SUBCOLLECTION_NAME)
-        .doc(req.body.documentid)
+        .doc(`${req.body.documentid}`)
         .delete();
       res.status(200).end();
       break;

@@ -1,10 +1,10 @@
-import { CartItemType } from "./item";
+import { apiGetCartItemData } from "./item";
 import { Timestamp } from "firebase/firestore";
 
 export type OrderType = {
   uid: string;
   order_id: string;
-  items: CartItemType[];
+  items: apiGetCartItemData[];
   name: string;
   email: string;
   zipcode: string;
