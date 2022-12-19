@@ -1,4 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { QueryDocumentSnapshot, QuerySnapshot } from "firebase/firestore";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Item } from "types/item";
 const { cert } = require("firebase-admin/app");
@@ -13,7 +14,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const COLLECTION_NAME = "items";
+  
   //初期化する
   if (admin.apps.length === 0) {
     admin.initializeApp({
@@ -21,12 +22,13 @@ export default async function handler(
     });
   }
 
+  const COLLECTION_NAME = "items";
   const db = getFirestore();
   const itemsCollection = db.collection(COLLECTION_NAME);
 
   if (req.method === "GET") {
-    const snapshot = await itemsCollection.get();
-    const getItems = snapshot.docs.map((doc: any) => {
+    const snapshot: Promise<QuerySnapshot<Item>> = await itemsCollection.get();
+    const getItems = (await snapshot).docs.map((doc: QueryDocumentSnapshot<Item>) => {
       const item = doc.data();
       return item;
     });

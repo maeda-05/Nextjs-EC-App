@@ -37,8 +37,10 @@ export default async function handler(
 
   switch (method) {
     case "GET":
-      const snapshot = await orderCollection.orderBy("orderAt", "desc").get();
-      const orders: OrderType[] = snapshot.docs.map((doc: any) => {
+      const orderSnapshot = await orderCollection
+        .orderBy("orderAt", "desc")
+        .get();
+      const orders: OrderType[] = orderSnapshot.docs.map((doc: any) => {
         const order = { ...doc.data(), order_id: doc.id };
         return order;
       });
@@ -49,7 +51,7 @@ export default async function handler(
         const jsDate = order.orderAt.toDate();
         return {
           items: order.items,
-          orderAt: new Date(jsDate),
+          orderAt: jsDate,
           order_id: order.order_id,
         };
       });
@@ -68,17 +70,23 @@ export default async function handler(
 
     case "DELETE":
       // 注文完了後カート商品を全削除
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cart?uid=${req.body.uid}`
-      );
-      const cartItems: CartItemType[] = await response.json();
 
       const subCollection = usersCollection
-        .doc(req.body.uid)
+        .doc(`${req.body.uid}`)
         .collection(SUBCOLLECTION_NAME);
 
+      const cartSnapshot = await subCollection.get();
+      const cartItems = (await cartSnapshot).docs.map((doc: any) => {
+        const jsDate = doc.data().incartAt.toDate();
+        return {
+          ...doc.data(),
+          documentid: doc.id,
+          incartAt: jsDate,
+        };
+      });
+
       cartItems.forEach(async (CartItem: CartItemType) => {
-        await subCollection.doc(CartItem.documentid).delete();
+        await subCollection.doc(`${CartItem.documentid}`).delete();
       });
 
       res.status(200).end();
