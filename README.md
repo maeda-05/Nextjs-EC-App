@@ -1,35 +1,40 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Nextjs-EC-App
 
-## Getting Started
+## 概要
 
-First, run the development server:
+ECサイト(Next.js, TypeScript, tailwindCSS, Firebase)のSPA開発
 
-```bash
-npm run dev
-# or
-yarn dev
+## URL
+
+<https://rakuraku-coffee.vercel.app/>
+
+## 開発環境
+
+- 言語：JavaScript、TypeScript、css
+- フレームワーク：Next.js、tailwindcss
+- データベース：CloudFireStore
+- ホスティングサービス：Vercel
+- その他：Firebase Authentication、Stripe
+
+## 開発機能
+
+- 認証機能（ソーシャルログイン）
+- カート機能
+- 決済機能
+
+## 動作確認
+
+- 下記テストユーザーでログインできます
+
+```
+email:test@example.com
+パスワード:test1234
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 下記テストクレジットカード情報で購入できます
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-# Nextjs-EC-App
+```
+カード番号:4242 4242 4242 4242
+有効期限：未来の任意の年月
+セキュリティコード:任意の数字3桁
+```
